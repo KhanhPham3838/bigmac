@@ -1,0 +1,427 @@
+---
+title: "The Big Mac Index: An Analysis"
+author: "Minh Pham"
+date: "4 September 2023"
+categories: [Data analysis, Visualization, R]
+image: "image.jpg"
+---
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+#| include: false
+#| message: false
+#| warning: false
+
+# this is to integrate dark and light mode for graphs. Credit to https://debruine.github.io/quarto_demo/dark_mode.html
+
+# but this does not seem to work with plotly..
+
+library(knitr)
+knit_print.ggplot <- function (x, options, ...) {
+  dark_theme = ggthemes::theme_solarized(light = FALSE)
+  light_theme = ggthemes::theme_solarized(light = TRUE)
+
+  orig_theme <- ggplot2::theme_get()
+  on.exit(ggplot2::theme_set(orig_theme))
+
+  # get html for light and dark
+  knitr::asis_output('\n<div class="dark-mode">\n')
+  
+  ggplot2::theme_set(dark_theme)
+  print(x)
+  
+  knitr::asis_output('</div>\n<div class="light-mode">\n')
+  
+  ggplot2::theme_set(light_theme)
+  print(x)
+  
+  knitr::asis_output('</div>\n\n')
+}
+registerS3method("knit_print", "ggplot", knit_print.ggplot)
+```
+
+## 👋 Introduction 
+
+If you have ever been to a Macca before, you probably know what Big Mac is right...? After all it is a staple menu item that is available in more than 100 countries around the world (Amica 2020). However, most economic theories usually are foreign concepts to the average person, the **Big Mac Index** is of no exception as it was devised on the premise of **Purchasing Power Parity**, which aims to simplifies the idea of exchange rates. 
+
+## 🍔 What is the Big Mac Index?  
+
+Developed in the 80s by a British newspaper *The Economist* (WealthDesk 2022), the Big Mac Index compares the price of Big Mac burgers across the globe as an indicator of whether an exchange rate is overvalued or undervalued compared to a base currency as the reference point. This is built on the idea that, in the long run, an identical basket of goods should cost the same in every part of the world, with the only difference being the exchange rate - any imbalances would then suggest that the current exchange rate is **not at the correct level**.
+
+Since the Big Macs around the world are being made with nigh-identical ingredients, labor efforts, and equipment. This item is then used a proxy for the identical basket of goods between countries; and therefore is used for the price comparison.
+
+![Deconstruction of a Big Mac. Illustration by Akanksha Dutta (Dribble.Com)](bigmac.jpg)
+
+## 💭 How does it work?
+
+The general understanding is that if the difference between the cost of a Big Mac in Country A is not the same as its price in Country B, then the currency rate is unbalanced.
+
+For instance, suppose that the Big Mac costs \$5 in the United States and it costs £5 in the United Kingdom, the Big Mac Index would suggest the exchange rate to be 1 USD = 1 GBP; however, the current market rate (according to Google, 5 September 2023) is 1 USD = 0.79 GBP. This indicates that the US dollar is undervalued and/or the British pound is overvalued by **21%**.
+
+Theoretically, this enables an arbitrage strategy as a British person could just exchange for the dollar buy the Big Mac in the US as it would only cost them 3.95 GBP, netting a profit of 1.05 pound when reselling it in the UK. This would continue on until the exchange rate adjusts to the correct level suggested by the Big Mac Index as such trades will no longer yield any benefits.
+
+![How does the Big Mac Index work. Illustration by The Economist (Economist.com)](pic2.png)
+
+## 🔍 The Hypothesis
+
+The purpose of this analysis is to examine the question:
+
+**"Do all exchange rates eventually converge to the Big Mac Index levels?"**
+
+We will try to observe this effect by using multiple currencies as the base currency then plot the valuations of many other currencies against them. For this purpose, we will stack multiple time series line for each country against a baseline. If the overall trends narrow as time progresses, which indicates signs of convergence to the Big Mac Index parity. 
+
+## 📝 Data Description
+
+The data is obtained from the `tidytuesdayR` package Hughes (2022), released 22 December 2020 as part of its weekly data analysis challenge. According to their [Github repository](https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-12-22/readme.md), the original data came from [The Economist](https://github.com/TheEconomist/big-mac-data), containing 20 years (2010-2020) of Big Mac prices of Mcdonald's branches around the world, as well as the valuation percentage against five base currencies namely, US dollar, Euro, British pound, Japanese yen, and Chinese yuan/rmb.
+
+### Data and variables
+
+We downloaded the data from `tidytuesdayR`, the raw data is available for download on their Github repository [here](https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-12-22/big-mac.csv).
+
+#### `**big-mac.csv**`
+
+```{r data_table, echo=FALSE, message=FALSE, warning=FALSE}
+#| echo: false
+#| message: false
+#| warning: false
+library(kableExtra)
+library(tibble)
+desc <-
+  tibble(
+    variable = c(
+      "date",
+      "iso_a3",
+      "currency_code",
+      "name",
+      "local_price",
+      "dollar_ex",
+      "dollar_price",
+      "USD_raw",
+      "EUR_raw",
+      "GBP_raw",
+      "JPY_raw",
+      "CNY_raw"
+    ),
+    class = c(
+      "date",
+      "character",
+      "character",
+      "double",
+      "double",
+      "double",
+      "double",
+      "double",
+      "double",
+      "double",
+      "double",
+      "double"
+    ),
+    description = c(
+      "Date of observation",
+      "Three-character [ISO 3166-1 country code][iso 3166-1]",
+      "Three-character [ISO 4217 currency code][iso 4217]",
+      "Country name",
+      "Price of a Big Mac in the local currency",
+      "Local currency units per dollar",
+      "Price of a Big Mac in dollars",
+      "Raw index, relative to the US dollar",
+      "Raw index, relative to the Euro",
+      "Raw index, relative to the British pound",
+      "Raw index, relative to the Japanese yen",
+      "Raw index, relative to the Chinese yuan"
+    )
+  )
+kbl(desc, table.attr = 'data-quarto-disable-processing="true"') |>
+  kable_styling(full_width = FALSE) |>
+  column_spec(1, width = "2cm", border_right = T) |>
+  column_spec(2, width = "3cm", border_right = T)
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+#| include: false
+#| message: false
+#| warning: false
+library(tidyverse)
+library(plotly)
+library(stringr)
+
+data <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-12-22/big-mac.csv")
+
+data <- data %>%
+    select(1:12, -iso_a3)
+```
+
+## 📈 Trends of currency valuations seen from different base currencies.
+
+### USD - US Dollar
+
+```{r, echo=FALSE}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-plot
+#| fig-cap: "USD as the base currency"
+
+data_p1 <- data %>%
+      rename(Date = date) %>%
+      mutate(Percentage = usd_raw * 100)
+
+    data_p1$Currency <- str_c(data_p1$currency_code, ' - ', data_p1$name)
+
+    d <- highlight_key(data_p1, ~Currency)
+
+
+    p <- ggplot(d, aes(y = Percentage, x = Date, colour = Currency), size = 0.5) +
+          geom_line() +
+          geom_point(size = 1) +
+          geom_hline(yintercept = 0, linetype = "dashed", color = "black", size = 1) +
+          expand_limits(y = 0) +
+          theme(legend.position = "none", text = element_text(size = 9)) +
+          labs(x = "Year",
+           y = "% of Over/Undervaluation difference against USD ",
+           title = ("Over/Undervaluation change over time (against USD)"),
+           caption = ("Source: The Economist"))
+
+    gg <- ggplotly( p, tooltips = "text", session="knitr") %>%
+      layout(annotations = list(
+        list(xref = "paper", yref = "y", x = 0.05, y = 15, text = "0% base line", showarrow = FALSE)
+      )) %>%
+       layout(margin = list(l = 50, r = 50, b = 70, t = 50),
+         annotations = list(x = 1, y = 1, text = "Source: The Economist",
+                            xref='paper', yref='paper', showarrow = F, 
+                            xanchor='right', yanchor='auto', xshift=0, yshift=-375,
+                            font = list(size = 12)))
+
+    highlight( gg, on="plotly_hover", off = "plotly_deselect", color = "black")
+```
+
+@fig-plot depicts the changes in world currency valuations against the US dollar, in which we can observe that most nations are undervalued against the USD. Pre-2015 saw many wildly overvalued currency such as the Norwegian Krone and Swiss Franc. Nonetheless, there seem to be converging trend as the **overvaluation/undervaluation gap becomes narrower** in the two decades time period. 
+
+### EUR - Euro
+
+```{r, echo=FALSE}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-plot2
+#| fig-cap: "EUR as the base currency"
+
+data_p1 <- data %>%
+      rename(Date = date) %>%
+      mutate(Percentage = eur_raw * 100)
+
+    data_p1$Currency <- str_c(data_p1$currency_code, ' - ', data_p1$name)
+
+    d <- highlight_key(data_p1, ~Currency)
+
+
+    p <- ggplot(d, aes(y = Percentage, x = Date, colour = Currency), size = 0.5) +
+          geom_line() +
+          geom_point(size = 1) +
+          geom_hline(yintercept = 0, linetype = "dashed", color = "black", size = 1) +
+          expand_limits(y = 0) +
+          theme(legend.position = "none", text = element_text(size = 9)) +
+          labs(x = "Year",
+           y = "% of Over/Undervaluation difference against EUR ",
+           title = ("Over/Undervaluation change over time (against EUR)"),
+           caption = ("Source: The Economist"))
+
+    gg <- ggplotly( p, tooltips = "text", session="knitr") %>%
+      layout(annotations = list(
+        list(xref = "paper", yref = "y", x = 0.05, y = 15, text = "0% base line", showarrow = FALSE)
+      )) %>%
+       layout(margin = list(l = 50, r = 50, b = 70, t = 50),
+         annotations = list(x = 1, y = 1, text = "Source: The Economist",
+                            xref='paper', yref='paper', showarrow = F, 
+                            xanchor='right', yanchor='auto', xshift=0, yshift=-375,
+                            font = list(size = 12)))
+
+    highlight( gg, on="plotly_hover", off = "plotly_deselect", color = "black")
+```
+
+Similar to the US dollar, the Euro is also mostly seen as an overvalued currency for other countries. There is a slight hint of convergence toward the baseline in @fig-plot2, albeit much harder to see compared to @fig-plot.
+
+### GBP - British pound 
+
+```{r, echo=FALSE}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-plot3
+#| fig-cap: "GBP as the base currency"
+
+data_p1 <- data %>%
+      rename(Date = date) %>%
+      mutate(Percentage = gbp_raw * 100)
+
+    data_p1$Currency <- str_c(data_p1$currency_code, ' - ', data_p1$name)
+
+    d <- highlight_key(data_p1, ~Currency)
+
+
+    p <- ggplot(d, aes(y = Percentage, x = Date, colour = Currency), size = 0.5) +
+          geom_line() +
+          geom_point(size = 1) +
+          geom_hline(yintercept = 0, linetype = "dashed", color = "black", size = 1) +
+          expand_limits(y = 0) +
+          theme(legend.position = "none", text = element_text(size = 9)) +
+          labs(x = "Year",
+           y = "% of Over/Undervaluation difference against GBP ",
+           title = ("Over/Undervaluation change over time (against GBP)"),
+           caption = ("Source: The Economist"))
+
+    gg <- ggplotly( p, tooltips = "text", session="knitr") %>%
+      layout(annotations = list(
+        list(xref = "paper", yref = "y", x = 0.05, y = 15, text = "0% base line", showarrow = FALSE)
+      )) %>%
+       layout(margin = list(l = 50, r = 50, b = 70, t = 50),
+         annotations = list(x = 1, y = 1, text = "Source: The Economist",
+                            xref='paper', yref='paper', showarrow = F, 
+                            xanchor='right', yanchor='auto', xshift=0, yshift=-375,
+                            font = list(size = 12)))
+
+    highlight( gg, on="plotly_hover", off = "plotly_deselect", color = "black")
+```
+
+Similar to both the USD and the EUR, British pound is another highly overvalued currency in the international stage (@fig-plot3). Perhaps because the UK was in the Eurozone that they both display a similar valuation trend as compared to the USD's valuation which was on a much wider disparity. 
+
+### JPY - Japanese yen 
+
+```{r, echo=FALSE}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-plot4
+#| fig-cap: "Yen as the base currency"
+
+data_p1 <- data %>%
+      rename(Date = date) %>%
+      mutate(Percentage = jpy_raw * 100)
+
+    data_p1$Currency <- str_c(data_p1$currency_code, ' - ', data_p1$name)
+
+    d <- highlight_key(data_p1, ~Currency)
+
+
+    p <- ggplot(d, aes(y = Percentage, x = Date, colour = Currency), size = 0.5) +
+          geom_line() +
+          geom_point(size = 1) +
+          geom_hline(yintercept = 0, linetype = "dashed", color = "black", size = 1) +
+          expand_limits(y = 0) +
+          theme(legend.position = "none", text = element_text(size = 9)) +
+          labs(x = "Year",
+           y = "% of Over/Undervaluation difference against JPY ",
+           title = ("Over/Undervaluation change over time (against JPY)"),
+           caption = ("Source: The Economist"))
+
+    gg <- ggplotly( p, tooltips = "text", session="knitr") %>%
+      layout(annotations = list(
+        list(xref = "paper", yref = "y", x = 0.05, y = 15, text = "0% base line", showarrow = FALSE)
+      )) %>%
+       layout(margin = list(l = 50, r = 50, b = 70, t = 50),
+         annotations = list(x = 1, y = 1, text = "Source: The Economist",
+                            xref='paper', yref='paper', showarrow = F, 
+                            xanchor='right', yanchor='auto', xshift=0, yshift=-375,
+                            font = list(size = 12)))
+
+    highlight( gg, on="plotly_hover", off = "plotly_deselect", color = "black")
+```
+
+Onto our first nation in Asia, in @fig-plot4, the years before 2015 saw large disparities in currency exchange rates against the Japanese Yen - similar to what we in the US. It is known that most Western countries have higher standard of livings compared to Asia's; therefore, Japan's Big Mac price positioned in the middle area where there are similar amount of currency that overvalued the Yen compared to those who undervalued against it.
+
+### CNY - Chinese yuan
+
+```{r, echo=FALSE}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-plot5
+#| fig-cap: "GBP as the base currency"
+
+data_p1 <- data %>%
+      rename(Date = date) %>%
+      mutate(Percentage = cny_raw * 100)
+
+    data_p1$Currency <- str_c(data_p1$currency_code, ' - ', data_p1$name)
+
+    d <- highlight_key(data_p1, ~Currency)
+
+
+    p <- ggplot(d, aes(y = Percentage, x = Date, colour = Currency), size = 0.5) +
+          geom_line() +
+          geom_point(size = 1) +
+          geom_hline(yintercept = 0, linetype = "dashed", color = "black", size = 1) +
+          expand_limits(y = 0) +
+          theme(legend.position = "none", text = element_text(size = 9)) +
+          labs(x = "Year",
+           y = "% of Over/Undervaluation difference against CNY ",
+           title = ("Over/Undervaluation change over time (against CNY)"),
+           caption = ("Source: The Economist"))
+
+    gg <- ggplotly( p, tooltips = "text", session="knitr") %>%
+      layout(annotations = list(
+        list(xref = "paper", yref = "y", x = 0.05, y = 15, text = "0% base line", showarrow = FALSE)
+      )) %>%
+       layout(margin = list(l = 50, r = 50, b = 70, t = 50),
+         annotations = list(x = 1, y = 1, text = "Source: The Economist",
+                            xref='paper', yref='paper', showarrow = F, 
+                            xanchor='right', yanchor='auto', xshift=0, yshift=-375,
+                            font = list(size = 12)))
+
+    highlight( gg, on="plotly_hover", off = "plotly_deselect", color = "black")
+```
+
+China is known as the factory of the world thanks to its competitive labor costs and exchange rate practices (The Economist 2021). As China trying to position its exchange rate to be cheaper to make their exports attractive, this is reflected in their Big Mac Index position in @fig-plot5 with the baseline drawn in the lower area compared to all aforementioned currencies. While there are still countries that the Chinese yuan is overvalued against, a Big Mac in China is still amongst the cheapest and undervalued when seen from the perspective of western countries. The convergence of exchange is also clearest here compared to other base currencies.
+
+## 🤔 Key Takeaways
+
+- We see that there are some trends in terms of convergence to the Big Mac parity.
+
+- This is especially clear in China
+
+- Theoretically, we could just go to China to buy Big Mac then resell in Norway or Switzerland for profit 💰💰.
+
+- **BUT**, there are barriers in place, such as tariffs,...
+
+- For economists, given that China's currency exchange rate is not exactly free-floating, could this convergence phenomenon be more evidence in countries with exchange rate regime? 🤔
+
+## 🗺️ Further exploration
+
+Keen to learn more about the Big Mac Index ? Explore the interactive version below!
+
+```{=html}
+ <iframe id="example1" src="https://mpha0054.shinyapps.io/shiny-TheBigMacIndex/" style="border: none; width: 100%; height: 720px" frameborder="0"></iframe>
+```
+
+## References
+
+Amica Internationl (2020, April 15). *Around the World in 20 Big Macs: How Much Do They      Vary?*. Retrieved from <https://www.amica-international.co.uk/blog/around-the-world-in-20-big-macs>
+
+C. Sievert. Interactive Web-Based Data Visualization with R, plotly, and shiny. Chapman and
+  Hall/CRC Florida, 2020.
+
+Hughes E (2022). *tidytuesdayR: Access the Weekly 'TidyTuesday' Project Dataset*. R package   version 1.0.2, <https://CRAN.R-project.org/package=tidytuesdayR>.
+
+The Econonomist (2021, September 8th). *China is the world’s factory, more than ever*.       Journal column. Retrieved from <https://www.economist.com/finance-and-economics/2021/09/08/china-is-the-worlds-factory-more-than-ever>
+
+Yihui Xie (2023). knitr: A General-Purpose Package for Dynamic Report Generation in R. R
+  package version 1.42.
+
+Yihui Xie (2015) Dynamic Documents with R and knitr. 2nd edition. Chapman and Hall/CRC.      ISBN
+  978-1498716963
+
+Yihui Xie (2014) knitr: A Comprehensive Tool for Reproducible Research in R. In Victoria
+  Stodden, Friedrich Leisch and Roger D. Peng, editors, Implementing Reproducible
+  Computational Research. Chapman and Hall/CRC. ISBN 978-1466561595
+
+WealthDesk (2022, October 31). *What Is The Big Mac Index And What Does It Tell Us?*.        Retrieved from <https://wealthdesk.in/blog/what-is-the-big-mac-index-and-what-does-it-tell-us/>
+
+Wickham H (2022). _stringr: Simple, Consistent Wrappers for Common String Operations_. R
+  package version 1.5.0, <https://CRAN.R-project.org/package=stringr>.
+
+Wickham H, Averick M, Bryan J, Chang W, McGowan LD, François R, Grolemund G, Hayes A, Henry
+  L, Hester J, Kuhn M, Pedersen TL, Miller E, Bache SM, Müller K, Ooms J, Robinson D,        Seidel DP, Spinu V, Takahashi K, Vaughan D, Wilke C, Woo K, Yutani H (2019). “Welcome to   the
+  tidyverse.” _Journal of Open Source Software_, *4*(43), 1686. doi:10.21105/joss.01686
+  <https://doi.org/10.21105/joss.01686>.
+
+Zhu H (2021). _kableExtra: Construct Complex Table with 'kable' and Pipe Syntax_. R package
+  version 1.3.4, <https://CRAN.R-project.org/package=kableExtra>.

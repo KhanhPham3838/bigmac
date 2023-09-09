@@ -1,0 +1,15 @@
+---
+title: "About"
+image: profile.jpg
+about:
+  template: jolla
+  links:
+    - icon: github
+      text: Github
+      href: https://github.com/KhanhPham3838
+
+---
+
+## This is a blog assignment for the ETC5523 Communicating with Data assessment at Monash University.
+
+Made by Minh Pham (mpha0054)

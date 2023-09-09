@@ -1,0 +1,26 @@
+project:
+  type: website
+
+website:
+  title: "Minh Pham's Opinions' Humble Abode"
+  navbar:
+    right:
+      - about.qmd
+      - icon: github
+        href: https://github.com/ETC5523-2023/blog-KhanhPham3838
+      - icon: rss-fill
+        href: index.xml
+        aria-label: RSS
+format:
+  html:
+    highlight-style: a11y
+    css: styles.css
+    toc: true
+    code-copy: true
+    code-overflow: wrap
+    theme:
+      light: [cosmo, flatly, styles.scss]
+      dark: [cosmo, darkly, styles-dark.scss]
+
+
+

@@ -1,0 +1,16 @@
+---
+title: "Welcome To My Blog"
+author: "Minh Pham"
+date: "4 September 2023"
+categories: [Introduction]
+---
+
+## Welcome to my blog!
+
+My takes will be delivered here, freshly baked and extremely based. 
+
+For now, please check out my Big Mac Index post!!
+
+![](giphy.gif)
+
+

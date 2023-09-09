@@ -1,0 +1,107 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "ETC5523 Blog Assessment",
+    "section": "",
+    "text": "The Big Mac Index: An Analysis\n\n\n\n\n\n\n\nData analysis\n\n\nVisualization\n\n\nR\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2023\n\n\nMinh Pham\n\n\n\n\n\n\n  \n\n\n\n\nWelcome To My Blog\n\n\n\n\n\n\n\nIntroduction\n\n\n\n\n\n\n\n\n\n\n\nSep 4, 2023\n\n\nMinh Pham\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/assignment/index.html",
+    "href": "posts/assignment/index.html",
+    "title": "The Big Mac Index: An Analysis",
+    "section": "",
+    "text": "If you have ever been to a Macca before, you probably know what Big Mac is right…? After all it is a staple menu item that is available in more than 100 countries around the world (Amica 2020). However, most economic theories usually are foreign concepts to the average person, the Big Mac Index is of no exception as it was devised on the premise of Purchasing Power Parity, which aims to simplifies the idea of exchange rates."
+  },
+  {
+    "objectID": "posts/assignment/index.html#introduction",
+    "href": "posts/assignment/index.html#introduction",
+    "title": "The Big Mac Index: An Analysis",
+    "section": "",
+    "text": "If you have ever been to a Macca before, you probably know what Big Mac is right…? After all it is a staple menu item that is available in more than 100 countries around the world (Amica 2020). However, most economic theories usually are foreign concepts to the average person, the Big Mac Index is of no exception as it was devised on the premise of Purchasing Power Parity, which aims to simplifies the idea of exchange rates."
+  },
+  {
+    "objectID": "posts/assignment/index.html#what-is-the-big-mac-index",
+    "href": "posts/assignment/index.html#what-is-the-big-mac-index",
+    "title": "The Big Mac Index: An Analysis",
+    "section": "🍔 What is the Big Mac Index?",
+    "text": "🍔 What is the Big Mac Index?\nDeveloped in the 80s by a British newspaper The Economist (WealthDesk 2022), the Big Mac Index compares the price of Big Mac burgers across the globe as an indicator of whether an exchange rate is overvalued or undervalued compared to a base currency as the reference point. This is built on the idea that, in the long run, an identical basket of goods should cost the same in every part of the world, with the only difference being the exchange rate - any imbalances would then suggest that the current exchange rate is not at the correct level.\nSince the Big Macs around the world are being made with nigh-identical ingredients, labor efforts, and equipment. This item is then used a proxy for the identical basket of goods between countries; and therefore is used for the price comparison.\n\n\n\nDeconstruction of a Big Mac. Illustration by Akanksha Dutta (Dribble.Com)"
+  },
+  {
+    "objectID": "posts/assignment/index.html#how-does-it-work",
+    "href": "posts/assignment/index.html#how-does-it-work",
+    "title": "The Big Mac Index: An Analysis",
+    "section": "💭 How does it work?",
+    "text": "💭 How does it work?\nThe general understanding is that if the difference between the cost of a Big Mac in Country A is not the same as its price in Country B, then the currency rate is unbalanced.\nFor instance, suppose that the Big Mac costs $5 in the United States and it costs £5 in the United Kingdom, the Big Mac Index would suggest the exchange rate to be 1 USD = 1 GBP; however, the current market rate (according to Google, 5 September 2023) is 1 USD = 0.79 GBP. This indicates that the US dollar is undervalued and/or the British pound is overvalued by 21%.\nTheoretically, this enables an arbitrage strategy as a British person could just exchange for the dollar buy the Big Mac in the US as it would only cost them 3.95 GBP, netting a profit of 1.05 pound when reselling it in the UK. This would continue on until the exchange rate adjusts to the correct level suggested by the Big Mac Index as such trades will no longer yield any benefits.\n\n\n\nHow does the Big Mac Index work. Illustration by The Economist (Economist.com)"
+  },
+  {
+    "objectID": "posts/assignment/index.html#the-hypothesis",
+    "href": "posts/assignment/index.html#the-hypothesis",
+    "title": "The Big Mac Index: An Analysis",
+    "section": "🔍 The Hypothesis",
+    "text": "🔍 The Hypothesis\nThe purpose of this analysis is to examine the question:\n“Do all exchange rates eventually converge to the Big Mac Index levels?”\nWe will try to observe this effect by using multiple currencies as the base currency then plot the valuations of many other currencies against them. For this purpose, we will stack multiple time series line for each country against a baseline. If the overall trends narrow as time progresses, which indicates signs of convergence to the Big Mac Index parity."
+  },
+  {
+    "objectID": "posts/assignment/index.html#data-description",
+    "href": "posts/assignment/index.html#data-description",
+    "title": "The Big Mac Index: An Analysis",
+    "section": "📝 Data Description",
+    "text": "📝 Data Description\nThe data is obtained from the tidytuesdayR package Hughes (2022), released 22 December 2020 as part of its weekly data analysis challenge. According to their Github repository, the original data came from The Economist, containing 20 years (2010-2020) of Big Mac prices of Mcdonald’s branches around the world, as well as the valuation percentage against five base currencies namely, US dollar, Euro, British pound, Japanese yen, and Chinese yuan/rmb.\n\nData and variables\nWe downloaded the data from tidytuesdayR, the raw data is available for download on their Github repository here.\n\n**big-mac.csv**\n\n\n\n\n \n  \n    variable \n    class \n    description \n  \n \n\n  \n    date \n    date \n    Date of observation \n  \n  \n    iso_a3 \n    character \n    Three-character [ISO 3166-1 country code][iso 3166-1] \n  \n  \n    currency_code \n    character \n    Three-character [ISO 4217 currency code][iso 4217] \n  \n  \n    name \n    double \n    Country name \n  \n  \n    local_price \n    double \n    Price of a Big Mac in the local currency \n  \n  \n    dollar_ex \n    double \n    Local currency units per dollar \n  \n  \n    dollar_price \n    double \n    Price of a Big Mac in dollars \n  \n  \n    USD_raw \n    double \n    Raw index, relative to the US dollar \n  \n  \n    EUR_raw \n    double \n    Raw index, relative to the Euro \n  \n  \n    GBP_raw \n    double \n    Raw index, relative to the British pound \n  \n  \n    JPY_raw \n    double \n    Raw index, relative to the Japanese yen \n  \n  \n    CNY_raw \n    double \n    Raw index, relative to the Chinese yuan"
+  },
+  {
+    "objectID": "posts/assignment/index.html#trends-of-currency-valuations-seen-from-different-base-currencies.",
+    "href": "posts/assignment/index.html#trends-of-currency-valuations-seen-from-different-base-currencies.",
+    "title": "The Big Mac Index: An Analysis",
+    "section": "📈 Trends of currency valuations seen from different base currencies.",
+    "text": "📈 Trends of currency valuations seen from different base currencies.\n\nUSD - US Dollar\n\n\n\n\n\nFigure 1: USD as the base currency\n\n\n\nFigure 1 depicts the changes in world currency valuations against the US dollar, in which we can observe that most nations are undervalued against the USD. Pre-2015 saw many wildly overvalued currency such as the Norwegian Krone and Swiss Franc. Nonetheless, there seem to be converging trend as the overvaluation/undervaluation gap becomes narrower in the two decades time period.\n\n\nEUR - Euro\n\n\n\n\n\nFigure 2: EUR as the base currency\n\n\n\nSimilar to the US dollar, the Euro is also mostly seen as an overvalued currency for other countries. There is a slight hint of convergence toward the baseline in Figure 2, albeit much harder to see compared to Figure 1.\n\n\nGBP - British pound\n\n\n\n\n\nFigure 3: GBP as the base currency\n\n\n\nSimilar to both the USD and the EUR, British pound is another highly overvalued currency in the international stage (Figure 3). Perhaps because the UK was in the Eurozone that they both display a similar valuation trend as compared to the USD’s valuation which was on a much wider disparity.\n\n\nJPY - Japanese yen\n\n\n\n\n\nFigure 4: Yen as the base currency\n\n\n\nOnto our first nation in Asia, in Figure 4, the years before 2015 saw large disparities in currency exchange rates against the Japanese Yen - similar to what we in the US. It is known that most Western countries have higher standard of livings compared to Asia’s; therefore, Japan’s Big Mac price positioned in the middle area where there are similar amount of currency that overvalued the Yen compared to those who undervalued against it.\n\n\nCNY - Chinese yuan\n\n\n\n\n\nFigure 5: GBP as the base currency\n\n\n\nChina is known as the factory of the world thanks to its competitive labor costs and exchange rate practices (The Economist 2021). As China trying to position its exchange rate to be cheaper to make their exports attractive, this is reflected in their Big Mac Index position in Figure 5 with the baseline drawn in the lower area compared to all aforementioned currencies. While there are still countries that the Chinese yuan is overvalued against, a Big Mac in China is still amongst the cheapest and undervalued when seen from the perspective of western countries. The convergence of exchange is also clearest here compared to other base currencies."
+  },
+  {
+    "objectID": "posts/assignment/index.html#key-takeaways",
+    "href": "posts/assignment/index.html#key-takeaways",
+    "title": "The Big Mac Index: An Analysis",
+    "section": "🤔 Key Takeaways",
+    "text": "🤔 Key Takeaways\n\nWe see that there are some trends in terms of convergence to the Big Mac parity.\nThis is especially clear in China\nTheoretically, we could just go to China to buy Big Mac then resell in Norway or Switzerland for profit 💰💰.\nBUT, there are barriers in place, such as tariffs,…\nFor economists, given that China’s currency exchange rate is not exactly free-floating, could this convergence phenomenon be more evidence in countries with exchange rate regime? 🤔"
+  },
+  {
+    "objectID": "posts/assignment/index.html#further-exploration",
+    "href": "posts/assignment/index.html#further-exploration",
+    "title": "The Big Mac Index: An Analysis",
+    "section": "🗺️ Further exploration",
+    "text": "🗺️ Further exploration\nKeen to learn more about the Big Mac Index ? Explore the interactive version below!"
+  },
+  {
+    "objectID": "posts/assignment/index.html#references",
+    "href": "posts/assignment/index.html#references",
+    "title": "The Big Mac Index: An Analysis",
+    "section": "References",
+    "text": "References\nAmica Internationl (2020, April 15). Around the World in 20 Big Macs: How Much Do They Vary?. Retrieved from https://www.amica-international.co.uk/blog/around-the-world-in-20-big-macs\nC. Sievert. Interactive Web-Based Data Visualization with R, plotly, and shiny. Chapman and Hall/CRC Florida, 2020.\nHughes E (2022). tidytuesdayR: Access the Weekly ‘TidyTuesday’ Project Dataset. R package version 1.0.2, https://CRAN.R-project.org/package=tidytuesdayR.\nThe Econonomist (2021, September 8th). China is the world’s factory, more than ever. Journal column. Retrieved from https://www.economist.com/finance-and-economics/2021/09/08/china-is-the-worlds-factory-more-than-ever\nYihui Xie (2023). knitr: A General-Purpose Package for Dynamic Report Generation in R. R package version 1.42.\nYihui Xie (2015) Dynamic Documents with R and knitr. 2nd edition. Chapman and Hall/CRC. ISBN 978-1498716963\nYihui Xie (2014) knitr: A Comprehensive Tool for Reproducible Research in R. In Victoria Stodden, Friedrich Leisch and Roger D. Peng, editors, Implementing Reproducible Computational Research. Chapman and Hall/CRC. ISBN 978-1466561595\nWealthDesk (2022, October 31). What Is The Big Mac Index And What Does It Tell Us?. Retrieved from https://wealthdesk.in/blog/what-is-the-big-mac-index-and-what-does-it-tell-us/\nWickham H (2022). stringr: Simple, Consistent Wrappers for Common String Operations. R package version 1.5.0, https://CRAN.R-project.org/package=stringr.\nWickham H, Averick M, Bryan J, Chang W, McGowan LD, François R, Grolemund G, Hayes A, Henry L, Hester J, Kuhn M, Pedersen TL, Miller E, Bache SM, Müller K, Ooms J, Robinson D, Seidel DP, Spinu V, Takahashi K, Vaughan D, Wilke C, Woo K, Yutani H (2019). “Welcome to the tidyverse.” Journal of Open Source Software, 4(43), 1686. doi:10.21105/joss.01686 https://doi.org/10.21105/joss.01686.\nZhu H (2021). kableExtra: Construct Complex Table with ‘kable’ and Pipe Syntax. R package version 1.3.4, https://CRAN.R-project.org/package=kableExtra."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "Made by Minh Pham (mpha0054)"
+  },
+  {
+    "objectID": "about.html#this-is-a-blog-assignment-for-the-etc5523-communicating-with-data-assessment-at-monash-university.",
+    "href": "about.html#this-is-a-blog-assignment-for-the-etc5523-communicating-with-data-assessment-at-monash-university.",
+    "title": "About",
+    "section": "",
+    "text": "Made by Minh Pham (mpha0054)"
+  },
+  {
+    "objectID": "posts/welcome/index.html",
+    "href": "posts/welcome/index.html",
+    "title": "Welcome To My Blog",
+    "section": "",
+    "text": "My takes will be delivered here, freshly baked and extremely based.\nFor now, please check out my Big Mac Index post!!"
+  },
+  {
+    "objectID": "posts/welcome/index.html#welcome-to-my-blog",
+    "href": "posts/welcome/index.html#welcome-to-my-blog",
+    "title": "Welcome To My Blog",
+    "section": "",
+    "text": "My takes will be delivered here, freshly baked and extremely based.\nFor now, please check out my Big Mac Index post!!"
+  }
+]

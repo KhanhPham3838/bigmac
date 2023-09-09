@@ -1,0 +1,20 @@
+/* css styles */
+.navbar-dark,
+.quarto-title-banner {
+  background: linear-gradient(to right, #27251F, #DA291C, #FFC72C);
+  color: #FFFFFF;
+}
+
+.navbar-title {
+  color: #FFFFFF;
+}
+
+.nav-tem {
+  background-color: #FFFFFF;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&display=swap');
+
+body {
+  font-family: "Atkinson Hyperlegible", sans-serif;
+}
